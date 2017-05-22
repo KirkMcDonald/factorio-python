@@ -63,14 +63,6 @@ class Resource(Item):
     def is_resource(self):
         return True
 
-class MineableResource(Resource):
-    def __init__(self, name, hardness, time, fluid, fluid_amount):
-        super().__init__(name)
-        self.hardness = hardness
-        self.time = time
-        self.fluid_name = fluid
-        self.fluid_amount = fluid_amount
-
 def get_item(items, name):
     if name in items:
         return items[name]
@@ -85,15 +77,5 @@ def get_items(data):
         category = entity.get("resource_category")
         if not category:
             continue
-        if category == "basic-solid":
-            props = entity["mineable_properties"]
-            items[name] = MineableResource(
-                    name,
-                    props["hardness"],
-                    props["mining_time"],
-                    props.get("required_fluid"),
-                    props.get("fluid_amount"),
-            )
-        elif category == "basic-fluid":
-            items[name] = Resource(name)
+        items[name] = Resource(name)
     return items

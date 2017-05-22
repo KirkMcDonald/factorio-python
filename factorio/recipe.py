@@ -81,8 +81,17 @@ class Recipe:
         return False
 
 class ResourceRecipe(Recipe):
+    def __init__(self, item):
+        super().__init__(item.name, None, 0, [], [Ingredient(1, item)])
+
+    def makes_resource(self):
+        return True
+
+class MiningRecipe(Recipe):
     """Pseudo-recipe representing resource extraction."""
-    def __init__(self, item, ingredients=None):
+    def __init__(self, item, hardness, mining_time, ingredients=None):
+        self.hardness = hardness
+        self.mining_time = mining_time
         if ingredients is None:
             ingredients = []
         super().__init__(item.name, "mining", 0, ingredients, [Ingredient(1, item)])
@@ -102,13 +111,25 @@ def get_recipe_graph(data):
             continue
         r = Recipe.from_dict(recipe, items)
         recipes[r.name] = r
-    for name, item in items.items():
-        if item.is_resource():
-            if item.name in recipes:
-                raise Exception(item.name + " already exists as recipe")
+    for entity in data["entities"].values():
+        category = entity.get("resource_category")
+        if not category:
+            continue
+        if category == "basic-solid":
+            name = entity["name"]
+            props = entity["mineable_properties"]
+            item = items[name]
             ingredients = None
-            if getattr(item, "fluid_name", None):
-                ingredients = [Ingredient(item.fluid_amount//10, items[item.fluid_name])]
-            r = ResourceRecipe(item, ingredients)
+            if "required_fluid" in props:
+                ingredients = [Ingredient(props["fluid_amount"]//10, items[props["required_fluid"]])]
+            recipe[name] = MiningRecipe(
+                    item,
+                    props["hardness"],
+                    props["mining_time"],
+                    ingredients,
+            )
+    for item in items.values():
+        if len(item.recipes) == 0:
+            r = ResourceRecipe(item)
             recipes[r.name] = r
     return items, recipes
