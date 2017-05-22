@@ -17,35 +17,6 @@ class Ingredient:
     def __repr__(self):
         return "%s(%d, %r)" % (type(self).__name__, self.amount, self.item.name)
 
-PRIORITY = ['raw-wood', 'crude-oil', 'stone', 'coal', 'uranium-ore', 'iron-ore', 'copper-ore', 'water']
-
-class RawRequirements:
-    def __init__(self):
-        self.reqs = {}
-    
-    def __repr__(self):
-        return "Raw({!r})".format(self.reqs)
-
-    def combine(self, other, factor):
-        for item, value in other.reqs.items():
-            self.add(item, value * factor)
-
-    def add(self, item, value):
-        old_value = self.reqs.get(item, 0)
-        if old_value is CYCLE:
-            return
-        self.reqs[item] = old_value + value
-
-    def set_cyclic(self, item):
-        self.reqs[item] = CYCLE
-
-    def _make_tuple(self, quantity):
-        items = {i.name: i for i in self.reqs}
-        return tuple(self.reqs[items[name]] / quantity if name in items else 0 for name in PRIORITY) + (sorted((i.name, value) for i, value in self.reqs.items() if i.name not in PRIORITY),)
-
-PENDING = object()
-CYCLE = object()
-
 class Recipe:
     def __init__(self, name, category, time, ingredients, products):
         self.name = name
