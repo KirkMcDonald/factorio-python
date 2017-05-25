@@ -60,12 +60,12 @@ class ResourceRecipe(Recipe):
 
 class MiningRecipe(Recipe):
     """Pseudo-recipe representing resource extraction."""
-    def __init__(self, item, hardness, mining_time, ingredients=None):
+    def __init__(self, item, category, hardness, mining_time, ingredients=None):
         self.hardness = hardness
         self.mining_time = mining_time
         if ingredients is None:
             ingredients = []
-        super().__init__(item.name, "mining", 0, ingredients, [Ingredient(1, item)])
+        super().__init__(item.name, category, 0, ingredients, [Ingredient(1, item)])
 
     def makes_resource(self):
         return True
@@ -93,8 +93,9 @@ def get_recipe_graph(data):
             ingredients = None
             if "required_fluid" in props:
                 ingredients = [Ingredient(props["fluid_amount"]//10, items[props["required_fluid"]])]
-            recipe[name] = MiningRecipe(
+            recipes[name] = MiningRecipe(
                     item,
+                    "mining-" + category,
                     props["hardness"],
                     props["mining_time"],
                     ingredients,

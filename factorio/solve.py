@@ -1,5 +1,5 @@
-from factorio import item as item_module
 from factorio import subgraphs
+from factorio import totals as totals_module
 from factorio import vectorize
 
 class UnknownRecipe:
@@ -35,7 +35,7 @@ class Solver:
             attribute of this object should be empty.
         """
         unknowns = {}
-        totals = item_module.Totals()
+        totals = totals_module.Totals()
         for item, rate in rates.items():
             sub_totals = item.produce(rate)
             totals.combine(sub_totals)
